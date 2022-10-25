@@ -354,6 +354,50 @@ func (wr *WebriskClient) LookupURLs(urls []string) (threats [][]URLThreat, err e
 	return threats, err
 }
 
+// LookupURLsLocally is the same as LookupURLs except it only checks the local DB.
+func (wr *WebriskClient) LookupURLsLocally(ctx context.Context, urls []string) (threats [][]URLThreat, err error) {
+	ctx, cancel := context.WithTimeout(ctx, wr.config.RequestTimeout)
+	defer cancel()
+
+	threats = make([][]URLThreat, len(urls))
+
+	if atomic.LoadUint32(&wr.closed) != 0 {
+		return threats, errClosed
+	}
+	if err := wr.db.Status(); err != nil {
+		wr.log.Printf("inconsistent database: %v", err)
+		atomic.AddInt64(&wr.stats.QueriesFail, int64(len(urls)))
+		return threats, err
+	}
+
+	for i, url := range urls {
+		urlhashes, err := generateHashes(url)
+		if err != nil {
+			wr.log.Printf("error generating urlhashes: %v", err)
+			atomic.AddInt64(&wr.stats.QueriesFail, int64(len(urls)-i))
+			return threats, err
+		}
+
+		for fullHash, pattern := range urlhashes {
+			// Lookup in database according to threat list.
+			_, unsureThreats := wr.db.Lookup(fullHash)
+			if len(unsureThreats) == 0 {
+				atomic.AddInt64(&wr.stats.QueriesByDatabase, 1)
+				continue // There are definitely no threats for this full hash
+			}
+
+			for _, td := range unsureThreats {
+				threats[i] = append(threats[i], URLThreat{
+					Pattern:    pattern,
+					ThreatType: td,
+				})
+			}
+		}
+	}
+
+	return threats, nil
+}
+
 // LookupURLsContext looks up the provided URLs. The request will be canceled
 // if the provided Context is canceled, or if Config.RequestTimeout has
 // elapsed. It is safe to call this method concurrently.

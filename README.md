@@ -18,7 +18,7 @@ documentation provide more details on fine tuning the parameters if desired.
 To download and install from the source, run the following command:
 
 ```
-go get github.com/google/webrisk
+go get github.com/redsift/webrisk
 ```
 
 The programs below execute from your `$GOPATH/bin` folder.
@@ -43,7 +43,7 @@ users to check URLs via a simple JSON API.
 1.	Once the Go environment is setup, run the following command with your API key:
 
 	```
-	go get github.com/google/webrisk/cmd/wrserver
+	go get github.com/redsift/webrisk/cmd/wrserver
 	wrserver -apikey $APIKEY
 	```
 
@@ -79,7 +79,7 @@ Browsing library can be used to protect users from unsafe URLs. This
 command-line tool filters unsafe URLs piped via STDIN. Example usage:
 
 ```
-$ go get github.com/google/webrisk/cmd/wrlookup
+$ go get github.com/redsift/webrisk/cmd/wrlookup
 $ echo "http://testsafebrowsing.appspot.com/apiv4/ANY_PLATFORM/MALWARE/URL/" | wrlookup -apikey=$APIKEY
 ```
 
@@ -89,5 +89,5 @@ To perform an end-to-end test on the package with the WebRisk backend,
 run the following command after exporting your API key:
 
 ```
-go test github.com/google/webrisk -v -run TestWebriskClient
+go test github.com/redsift/webrisk -v -run TestWebriskClient
 ```

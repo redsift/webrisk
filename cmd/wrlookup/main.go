@@ -19,7 +19,7 @@
 // If an error occurred, debug information may be printed to STDERR.
 //
 // To build the tool:
-//	$ go get github.com/google/webrisk/cmd/wrlookup
+//	$ go get github.com/redsift/webrisk/cmd/wrlookup
 //
 // Example usage:
 //	$ wrlookup -apikey $APIKEY
@@ -33,7 +33,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/google/webrisk"
+	"github.com/redsift/webrisk"
 	"os"
 )
 

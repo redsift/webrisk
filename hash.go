@@ -21,7 +21,7 @@ import (
 	"sort"
 	"strings"
 
-	pb "github.com/google/webrisk/internal/webrisk_proto"
+	pb "github.com/redsift/webrisk/internal/webrisk_proto"
 )
 
 const (

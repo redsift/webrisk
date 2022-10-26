@@ -337,7 +337,7 @@ func (wr *WebriskClient) WaitUntilReady(ctx context.Context) error {
 
 // LookupURLs looks up the provided URLs. It returns a list of threats, one for
 // every URL requested, and an error if any occurred. It is safe to call this
-// method concurrently. The localOnly bool specifies if the search should be limited
+// method concurrently. The local bool specifies if the search should be limited
 // to the local database only.
 //
 // The outer dimension is across all URLs requested, and will always have the
@@ -350,8 +350,8 @@ func (wr *WebriskClient) WaitUntilReady(ctx context.Context) error {
 //
 // If an error occurs, the caller should treat the threats list returned as a
 // best-effort response to the query. The results may be stale or be partial.
-func (wr *WebriskClient) LookupURLs(urls []string, localOnly bool) (threats [][]URLThreat, err error) {
-	threats, err = wr.LookupURLsContext(context.Background(), urls, localOnly)
+func (wr *WebriskClient) LookupURLs(urls []string, local bool) (threats [][]URLThreat, err error) {
+	threats, err = wr.LookupURLsContext(context.Background(), urls, local)
 	return threats, err
 }
 
@@ -360,7 +360,7 @@ func (wr *WebriskClient) LookupURLs(urls []string, localOnly bool) (threats [][]
 // elapsed. It is safe to call this method concurrently.
 //
 // See LookupURLs for details on the returned results.
-func (wr *WebriskClient) LookupURLsContext(ctx context.Context, urls []string, localOnly bool) (threats [][]URLThreat, err error) {
+func (wr *WebriskClient) LookupURLsContext(ctx context.Context, urls []string, local bool) (threats [][]URLThreat, err error) {
 	ctx, cancel := context.WithTimeout(ctx, wr.config.RequestTimeout)
 	defer cancel()
 
@@ -403,7 +403,7 @@ func (wr *WebriskClient) LookupURLsContext(ctx context.Context, urls []string, l
 				continue // There are definitely no threats for this full hash
 			}
 
-			if localOnly {
+			if local {
 				for _, td := range unsureThreats {
 					threats[i] = append(threats[i], URLThreat{
 						Pattern:    pattern,
@@ -457,7 +457,7 @@ func (wr *WebriskClient) LookupURLsContext(ctx context.Context, urls []string, l
 		}
 	}
 
-	if localOnly {
+	if local {
 		return threats, nil
 	}
 

@@ -107,7 +107,7 @@ message SearchUrisRequest {
   // Required. The ThreatLists to search in.
   repeated ThreatType threat_types = 2;
 
-  bool localOnly = 3;
+  bool local = 3;
 }
 
 message SearchUrisResponse {

@@ -342,7 +342,7 @@ func serveLookups(resp http.ResponseWriter, req *http.Request, sb *webrisk.Webri
 		return
 	}
 
-	utss, err := sb.LookupURLsContext(req.Context(), pbReq.Uris, pbReq.LocalOnly)
+	utss, err := sb.LookupURLsContext(req.Context(), pbReq.Uris, pbReq.Local)
 	if err != nil {
 		http.Error(resp, err.Error(), http.StatusInternalServerError)
 		return

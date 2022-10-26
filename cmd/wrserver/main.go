@@ -345,11 +345,8 @@ func serveLookups(resp http.ResponseWriter, req *http.Request, sb *webrisk.Webri
 	// TODO: Should this handler use the information in threatTypes,
 	// platformTypes, and threatEntryTypes?
 
-	// Parse the request message.
-	urls := []string{pbReq.Uri}
-
 	// Lookup the URL.
-	utss, err := sb.LookupURLsContext(req.Context(), urls)
+	utss, err := sb.LookupURLsContext(req.Context(), pbReq.Uris)
 	if err != nil {
 		http.Error(resp, err.Error(), http.StatusInternalServerError)
 		return
@@ -357,7 +354,7 @@ func serveLookups(resp http.ResponseWriter, req *http.Request, sb *webrisk.Webri
 
 	// Compose the response message.
 	pbResp := &pb.SearchUrisResponse{
-		Threat: &pb.SearchUrisResponse_ThreatUri{},
+		Threats: []*pb.SearchUrisResponse_ThreatUri{},
 	}
 	for _, uts := range utss {
 		// Use map to condense duplicate ThreatDescriptor entries.
@@ -366,8 +363,12 @@ func serveLookups(resp http.ResponseWriter, req *http.Request, sb *webrisk.Webri
 			tdm[ut.ThreatType] = true
 		}
 
+		threat := &pb.SearchUrisResponse_ThreatUri{
+			Pattern: uts[0].Pattern,
+		}
+
 		for td := range tdm {
-			pbResp.Threat.ThreatTypes = append(pbResp.Threat.ThreatTypes, pb.ThreatType(td))
+			threat.ThreatTypes = append(threat.ThreatTypes, pb.ThreatType(td))
 		}
 	}
 

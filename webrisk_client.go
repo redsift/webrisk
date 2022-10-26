@@ -349,8 +349,8 @@ func (wr *WebriskClient) WaitUntilReady(ctx context.Context) error {
 //
 // If an error occurs, the caller should treat the threats list returned as a
 // best-effort response to the query. The results may be stale or be partial.
-func (wr *WebriskClient) LookupURLs(urls []string) (threats [][]URLThreat, err error) {
-	threats, err = wr.LookupURLsContext(context.Background(), urls)
+func (wr *WebriskClient) LookupURLs(urls []string, localOnly bool) (threats [][]URLThreat, err error) {
+	threats, err = wr.LookupURLsContext(context.Background(), urls, localOnly)
 	return threats, err
 }
 
@@ -403,7 +403,7 @@ func (wr *WebriskClient) LookupURLsLocally(ctx context.Context, urls []string) (
 // elapsed. It is safe to call this method concurrently.
 //
 // See LookupURLs for details on the returned results.
-func (wr *WebriskClient) LookupURLsContext(ctx context.Context, urls []string) (threats [][]URLThreat, err error) {
+func (wr *WebriskClient) LookupURLsContext(ctx context.Context, urls []string, localOnly bool) (threats [][]URLThreat, err error) {
 	ctx, cancel := context.WithTimeout(ctx, wr.config.RequestTimeout)
 	defer cancel()
 
@@ -444,6 +444,17 @@ func (wr *WebriskClient) LookupURLsContext(ctx context.Context, urls []string) (
 			if len(unsureThreats) == 0 {
 				atomic.AddInt64(&wr.stats.QueriesByDatabase, 1)
 				continue // There are definitely no threats for this full hash
+			}
+
+			if localOnly {
+				for _, td := range unsureThreats {
+					threats[i] = append(threats[i], URLThreat{
+						Pattern:    pattern,
+						ThreatType: td,
+					})
+				}
+
+				continue
 			}
 
 			// Lookup in cache according to recently seen values.
@@ -487,6 +498,10 @@ func (wr *WebriskClient) LookupURLsContext(ctx context.Context, urls []string) (
 				})
 			}
 		}
+	}
+	
+	if localOnly {
+		return threats, nil
 	}
 
 	for _, req := range reqs {

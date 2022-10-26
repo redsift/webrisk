@@ -342,13 +342,7 @@ func serveLookups(resp http.ResponseWriter, req *http.Request, sb *webrisk.Webri
 		return
 	}
 
-	var utss [][]webrisk.URLThreat
-	if pbReq.LocalOnly == true {
-		utss, err = sb.LookupURLsLocally(req.Context(), pbReq.Uris)
-	} else {
-		utss, err = sb.LookupURLsContext(req.Context(), pbReq.Uris)
-	}
-
+	utss, err := sb.LookupURLsContext(req.Context(), pbReq.Uris, pbReq.LocalOnly)
 	if err != nil {
 		http.Error(resp, err.Error(), http.StatusInternalServerError)
 		return
@@ -412,7 +406,7 @@ func serveRedirector(resp http.ResponseWriter, req *http.Request, sb *webrisk.We
 		http.Error(resp, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	threats, err := sb.LookupURLsContext(req.Context(), []string{rawURL})
+	threats, err := sb.LookupURLsContext(req.Context(), []string{rawURL}, false)
 	if err != nil {
 		http.Error(resp, err.Error(), http.StatusInternalServerError)
 		return

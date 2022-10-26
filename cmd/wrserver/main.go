@@ -342,11 +342,13 @@ func serveLookups(resp http.ResponseWriter, req *http.Request, sb *webrisk.Webri
 		return
 	}
 
-	// TODO: Should this handler use the information in threatTypes,
-	// platformTypes, and threatEntryTypes?
+	var utss [][]webrisk.URLThreat
+	if pbReq.LocalOnly == true {
+		utss, err = sb.LookupURLsLocally(req.Context(), pbReq.Uris)
+	} else {
+		utss, err = sb.LookupURLsContext(req.Context(), pbReq.Uris)
+	}
 
-	// Lookup the URL.
-	utss, err := sb.LookupURLsContext(req.Context(), pbReq.Uris)
 	if err != nil {
 		http.Error(resp, err.Error(), http.StatusInternalServerError)
 		return

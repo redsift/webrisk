@@ -359,13 +359,16 @@ func serveLookups(resp http.ResponseWriter, req *http.Request, sb *webrisk.Webri
 			tdm[ut.ThreatType] = true
 		}
 
-		threat := &pb.SearchUrisResponse_ThreatUri{
-			Pattern: uts[0].Pattern,
+		threat := &pb.SearchUrisResponse_ThreatUri{}
+		if len(uts) > 0 {
+			threat.Pattern = uts[0].Pattern
 		}
 
 		for td := range tdm {
 			threat.ThreatTypes = append(threat.ThreatTypes, pb.ThreatType(td))
 		}
+		pbResp.Threats = append(pbResp.Threats, threat)
+
 	}
 
 	// Encode the response message.

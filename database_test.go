@@ -30,7 +30,7 @@ import (
 	"time"
 
 	pt "github.com/golang/protobuf/ptypes"
-	pb "github.com/redsift/webrisk/internal/webrisk_proto"
+	pb "github.com/google/webrisk/internal/webrisk_proto"
 )
 
 func mustGetTempFile(t *testing.T) string {

@@ -26,7 +26,7 @@ import (
 	"time"
 
 	pt "github.com/golang/protobuf/ptypes"
-	pb "github.com/redsift/webrisk/internal/webrisk_proto"
+	pb "github.com/google/webrisk/internal/webrisk_proto"
 )
 
 // jitter is the maximum amount of time that we expect an API list update to

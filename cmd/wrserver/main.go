@@ -198,13 +198,13 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/redsift/webrisk"
-	pb "github.com/redsift/webrisk/internal/webrisk_proto"
+	"github.com/google/webrisk"
+	pb "github.com/google/webrisk/internal/webrisk_proto"
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
+	_ "github.com/google/webrisk/cmd/wrserver/statik"
 	"github.com/rakyll/statik/fs"
-	_ "github.com/redsift/webrisk/cmd/wrserver/statik"
 )
 
 const (

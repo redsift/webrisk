@@ -24,7 +24,7 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	pb "github.com/redsift/webrisk/internal/webrisk_proto"
+	pb "github.com/google/webrisk/internal/webrisk_proto"
 )
 
 var (

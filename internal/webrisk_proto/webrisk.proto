@@ -17,6 +17,8 @@ syntax = "proto3";
 
 package google.cloud.webrisk.v1;
 
+option go_package = "./";
+
 import "google/protobuf/timestamp.proto";
 
 // Describes an API diff request.
@@ -100,25 +102,30 @@ message ComputeThreatListDiffResponse {
 // Request to check URI entries against threatLists.
 message SearchUrisRequest {
   // The URI to be checked for matches.
-  string uri = 1;
+  repeated string uris = 1;
 
   // Required. The ThreatLists to search in.
   repeated ThreatType threat_types = 2;
+
+  bool local = 3;
 }
 
 message SearchUrisResponse {
   // Contains threat information on a matching uri.
   message ThreatUri {
+    // The pattern for the URI
+    string pattern = 1;
+
     // The ThreatList this threat belongs to.
-    repeated ThreatType threat_types = 1;
+    repeated ThreatType threat_types = 2;
 
     // The cache lifetime for the returned match. Clients must not cache this
     // response past this timestamp to avoid false positives.
-    google.protobuf.Timestamp expire_time = 2;
+    google.protobuf.Timestamp expire_time = 3;
   }
 
   // The threat list matches. This may be empty if the URI is on no list.
-  ThreatUri threat = 1;
+  repeated ThreatUri threats = 1;
 }
 
 // Request to return full hashes matched by the provided hash prefixes.

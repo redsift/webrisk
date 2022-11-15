@@ -122,7 +122,7 @@ func TestWebriskClient(t *testing.T) {
 	url := "http://testsafebrowsing.appspot.com/apiv4/ANY_PLATFORM/MALWARE/URL/"
 
 	urls := []string{url, url + "?q=test"}
-	threats, e := sb.LookupURLs(urls)
+	threats, e := sb.LookupURLs(urls, false)
 	if e != nil {
 		t.Fatal(e)
 	}

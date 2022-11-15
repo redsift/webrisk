@@ -201,9 +201,9 @@ import (
 	"github.com/google/webrisk"
 	pb "github.com/google/webrisk/internal/webrisk_proto"
 
-	_ "github.com/google/webrisk/cmd/wrserver/statik"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
+	_ "github.com/google/webrisk/cmd/wrserver/statik"
 	"github.com/rakyll/statik/fs"
 )
 
@@ -342,14 +342,7 @@ func serveLookups(resp http.ResponseWriter, req *http.Request, sb *webrisk.Webri
 		return
 	}
 
-	// TODO: Should this handler use the information in threatTypes,
-	// platformTypes, and threatEntryTypes?
-
-	// Parse the request message.
-	urls := []string{pbReq.Uri}
-
-	// Lookup the URL.
-	utss, err := sb.LookupURLsContext(req.Context(), urls)
+	utss, err := sb.LookupURLsContext(req.Context(), pbReq.Uris, pbReq.Local)
 	if err != nil {
 		http.Error(resp, err.Error(), http.StatusInternalServerError)
 		return
@@ -357,7 +350,7 @@ func serveLookups(resp http.ResponseWriter, req *http.Request, sb *webrisk.Webri
 
 	// Compose the response message.
 	pbResp := &pb.SearchUrisResponse{
-		Threat: &pb.SearchUrisResponse_ThreatUri{},
+		Threats: []*pb.SearchUrisResponse_ThreatUri{},
 	}
 	for _, uts := range utss {
 		// Use map to condense duplicate ThreatDescriptor entries.
@@ -366,9 +359,16 @@ func serveLookups(resp http.ResponseWriter, req *http.Request, sb *webrisk.Webri
 			tdm[ut.ThreatType] = true
 		}
 
-		for td := range tdm {
-			pbResp.Threat.ThreatTypes = append(pbResp.Threat.ThreatTypes, pb.ThreatType(td))
+		threat := &pb.SearchUrisResponse_ThreatUri{}
+		if len(uts) > 0 {
+			threat.Pattern = uts[0].Pattern
 		}
+
+		for td := range tdm {
+			threat.ThreatTypes = append(threat.ThreatTypes, pb.ThreatType(td))
+		}
+		pbResp.Threats = append(pbResp.Threats, threat)
+
 	}
 
 	// Encode the response message.
@@ -409,7 +409,7 @@ func serveRedirector(resp http.ResponseWriter, req *http.Request, sb *webrisk.We
 		http.Error(resp, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	threats, err := sb.LookupURLsContext(req.Context(), []string{rawURL})
+	threats, err := sb.LookupURLsContext(req.Context(), []string{rawURL}, false)
 	if err != nil {
 		http.Error(resp, err.Error(), http.StatusInternalServerError)
 		return

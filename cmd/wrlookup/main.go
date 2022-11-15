@@ -33,8 +33,9 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/google/webrisk"
 	"os"
+
+	"github.com/google/webrisk"
 )
 
 var (
@@ -93,7 +94,7 @@ func main() {
 	code := codeSafe
 	for scanner.Scan() {
 		url := scanner.Text()
-		threats, err := sb.LookupURLs([]string{url})
+		threats, err := sb.LookupURLs([]string{url}, false)
 		if err != nil {
 			fmt.Fprintln(os.Stdout, "Unknown URL:", url)
 			fmt.Fprintln(os.Stderr, "Lookup error:", err)
